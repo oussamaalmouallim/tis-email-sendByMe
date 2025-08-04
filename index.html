@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TIS - Test d'authentification</title>
+    <title>TIS - Test d'authentification (Server Version)</title>
     <style>
         * {
             margin: 0;
@@ -45,6 +45,17 @@
             color: #666;
             margin-bottom: 30px;
             font-size: 14px;
+        }
+
+        .version-badge {
+            background: #28a745;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: inline-block;
         }
 
         .auth-section {
@@ -118,6 +129,12 @@
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,123,255,0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .btn-success {
@@ -236,13 +253,38 @@
             font-size: 12px;
             color: #999;
         }
+
+        .server-info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        .test-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 15px 0;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="logo">🔐</div>
         <h1>TIS Authentication Test</h1>
-        <p class="subtitle">Projet de test pour l'envoi automatique WhatsApp</p>
+        <div class="version-badge">SERVER VERSION</div>
+        <p class="subtitle">Test avec serveur Node.js (CORS résolu)</p>
+
+        <!-- Info serveur -->
+        <div class="server-info">
+            <strong>📡 Mode serveur actif</strong><br>
+            Les requêtes WhatsApp passent par le serveur Node.js pour éviter les problèmes CORS.
+        </div>
 
         <!-- Section d'affichage du code actuel -->
         <div class="code-display">
@@ -277,17 +319,27 @@
                 </div>
             </div>
 
-            <button class="btn btn-whatsapp" onclick="sendToWhatsApp()">
-                📱 Envoyer par WhatsApp
-            </button>
-            <button class="btn btn-success" onclick="generateNewCode()">
-                🔄 Nouveau code
-            </button>
+            <div class="test-buttons">
+                <button class="btn btn-whatsapp" onclick="sendToWhatsAppViaServer()">
+                    📱 Envoyer par WhatsApp
+                </button>
+                <button class="btn btn-success" onclick="refreshCode()">
+                    🔄 Actualiser
+                </button>
+            </div>
+
+            <div class="server-info">
+                <strong>🚀 Fonctionnalités de test :</strong><br>
+                • Envoi WhatsApp via serveur (pas de CORS)<br>
+                • Code généré côté serveur<br>
+                • Logs détaillés dans la console serveur
+            </div>
         </div>
 
         <div class="footer">
-            <p>Projet de test - Version 1.0</p>
+            <p>Projet de test - Version Server 1.0</p>
             <p>Destinataire WhatsApp : +212 661-053971</p>
+            <p id="serverStatus">🔄 Vérification du serveur...</p>
         </div>
     </div>
 
@@ -296,15 +348,9 @@
         let currentCode = '';
         let attempts = 0;
         let isLoggedIn = false;
+        let serverAvailable = false;
 
-        // Configuration WhatsApp (vos vraies données)
-        const WHATSAPP_CONFIG = {
-            token: 'EAAPSeW1gAioBPCezPMcRg5DQNaFxhppG79pH3oaR5qIMD5OvoHM378kxUZAvBXnJZBwZCm4ZCBCV5pDRVzUI4phwCVaukogXy9WCHjqH1smLryZCjiTJvhf2TvYijvoXRBq7eGYWDxb4yIgMOxsD5tgB6qBO0dRZBntsNqZAgIr4g5DU1Q4OnPaZAw6UOgZCHtaQf8QzCdWTloZAnCWMS4QHrZBQDIvkCkHzB4v8LNXxrmI5wL9hAZDZD',
-            phoneNumberId: '1075843898016298',
-            recipientNumber: '212661053971'
-        };
-
-        // Fonction de génération du code (identique à votre code)
+        // Fonction de génération du code côté client (pour vérification)
         function generateDailyCode() {
             const today = new Date();
             const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
@@ -327,10 +373,45 @@
             return code;
         }
 
+        // Vérifier si le serveur est disponible
+        async function checkServerStatus() {
+            try {
+                const response = await fetch('/api/code');
+                if (response.ok) {
+                    serverAvailable = true;
+                    document.getElementById('serverStatus').innerHTML = '✅ Serveur connecté';
+                    return true;
+                }
+            } catch (error) {
+                console.log('Mode serveur non disponible, utilisation du mode client');
+            }
+            
+            serverAvailable = false;
+            document.getElementById('serverStatus').innerHTML = '⚠️ Mode client (serveur non disponible)';
+            return false;
+        }
+
+        // Obtenir le code depuis le serveur ou générer côté client
+        async function getCurrentCode() {
+            if (serverAvailable) {
+                try {
+                    const response = await fetch('/api/code');
+                    if (response.ok) {
+                        const data = await response.json();
+                        return data.code;
+                    }
+                } catch (error) {
+                    console.log('Erreur serveur, utilisation du code client');
+                }
+            }
+            
+            return generateDailyCode();
+        }
+
         // Vérification du code
-        function verifyCode() {
+        async function verifyCode() {
             const inputCode = document.getElementById('codeInput').value.trim().toUpperCase();
-            const todayCode = generateDailyCode();
+            const todayCode = await getCurrentCode();
             
             attempts++;
             document.getElementById('attempts').textContent = attempts;
@@ -366,8 +447,8 @@
             }, 5000);
         }
 
-        // Envoyer le code par WhatsApp
-        async function sendToWhatsApp() {
+        // Envoyer le code par WhatsApp via le serveur
+        async function sendToWhatsAppViaServer() {
             const btn = event.target;
             const originalText = btn.innerHTML;
             
@@ -376,45 +457,28 @@
             btn.disabled = true;
 
             try {
-                const code = generateDailyCode();
-                const message = `🔐 *Code d'accès TIS - Test*
-
-📅 Date : ${new Date().toLocaleDateString('fr-FR')}
-🕐 Heure : ${new Date().toLocaleTimeString('fr-FR')}
-🔑 Code : *${code}*
-
-✅ Test d'envoi automatique réussi !
-🧪 Projet de test déployé sur GitHub
-
-_Message envoyé depuis l'interface de test_`;
-
-                const response = await fetch(`https://graph.facebook.com/v18.0/${WHATSAPP_CONFIG.phoneNumberId}/messages`, {
+                const response = await fetch('/send-whatsapp', {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${WHATSAPP_CONFIG.token}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        messaging_product: 'whatsapp',
-                        to: WHATSAPP_CONFIG.recipientNumber,
-                        type: 'text',
-                        text: {
-                            body: message
-                        }
+                        test: true,
+                        source: 'admin-panel'
                     })
                 });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    showMessage(`✅ Message envoyé avec succès ! ID: ${data.messages[0].id}`, 'success');
-                    console.log('✅ WhatsApp envoyé:', data);
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage(`✅ Message envoyé avec succès ! ID: ${data.messageId}`, 'success');
+                    console.log('✅ WhatsApp envoyé via serveur:', data);
                 } else {
-                    const errorData = await response.json();
-                    throw new Error(`Erreur ${response.status}: ${errorData.error?.message || 'Erreur inconnue'}`);
+                    throw new Error(data.error || 'Erreur serveur inconnue');
                 }
 
             } catch (error) {
-                console.error('❌ Erreur WhatsApp:', error);
+                console.error('❌ Erreur envoi WhatsApp:', error);
                 showMessage(`❌ Erreur lors de l'envoi: ${error.message}`, 'error');
             } finally {
                 // Restaurer le bouton
@@ -423,12 +487,12 @@ _Message envoyé depuis l'interface de test_`;
             }
         }
 
-        // Générer un nouveau code (simulation)
-        function generateNewCode() {
-            const newCode = generateDailyCode();
+        // Actualiser le code
+        async function refreshCode() {
+            const newCode = await getCurrentCode();
             document.getElementById('todayCode').textContent = newCode;
             document.getElementById('currentCode').textContent = newCode;
-            showMessage('🔄 Code mis à jour !', 'info');
+            showMessage('🔄 Code actualisé !', 'info');
         }
 
         // Gestion de l'appui sur Entrée
@@ -439,23 +503,30 @@ _Message envoyé depuis l'interface de test_`;
         });
 
         // Initialisation au chargement
-        document.addEventListener('DOMContentLoaded', function() {
-            const todayCode = generateDailyCode();
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Vérifier le statut du serveur
+            await checkServerStatus();
+            
+            // Obtenir le code actuel
+            const todayCode = await getCurrentCode();
             document.getElementById('currentCode').textContent = todayCode;
             document.getElementById('todayCode').textContent = todayCode;
             document.getElementById('codeInput').focus();
 
             // Afficher les informations de debug dans la console
-            console.log('🔐 TIS Test Project - Debug Info');
+            console.log('🔐 TIS Test Project - Server Version');
             console.log('=====================================');
             console.log('📅 Code du jour:', todayCode);
-            console.log('📱 WhatsApp configuré:', WHATSAPP_CONFIG.recipientNumber);
-            console.log('🔑 Token (premiers chars):', WHATSAPP_CONFIG.token.substring(0, 20) + '...');
-            console.log('📞 Phone ID:', WHATSAPP_CONFIG.phoneNumberId);
+            console.log('🌐 Serveur disponible:', serverAvailable);
+            console.log('📱 Destinataire WhatsApp: +212 661-053971');
             console.log('=====================================');
 
-            // Test de connectivité (optionnel)
-            showMessage('🚀 Interface de test chargée. Entrez le code pour accéder aux fonctions admin.', 'info');
+            // Message d'accueil
+            if (serverAvailable) {
+                showMessage('🚀 Interface serveur chargée. Le serveur Node.js gère les requêtes WhatsApp.', 'info');
+            } else {
+                showMessage('⚠️ Serveur non disponible. Fonctionnement en mode client uniquement.', 'info');
+            }
         });
 
         // Protection contre la fermeture accidentelle
