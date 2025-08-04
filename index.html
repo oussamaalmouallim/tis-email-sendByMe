@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIS - Test d'authentification</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .auth-section {
+            margin-bottom: 30px;
+        }
+
+        .code-display {
+            background: #f8f9fa;
+            border: 2px dashed #007bff;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .code-display h3 {
+            color: #007bff;
+            font-size: 2em;
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+        }
+
+        .code-display p {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+            margin: 5px;
+            min-width: 120px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,123,255,0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 5px 15px rgba(40,167,69,0.4);
+        }
+
+        .btn-whatsapp {
+            background: linear-gradient(45deg, #25D366, #128C7E);
+        }
+
+        .btn-whatsapp:hover {
+            box-shadow: 0 5px 15px rgba(37,211,102,0.4);
+        }
+
+        .status-message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status-info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .admin-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .admin-panel h3 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🔐</div>
+        <h1>TIS Authentication Test</h1>
+        <p class="subtitle">Projet de test pour l'envoi automatique WhatsApp</p>
+
+        <!-- Section d'affichage du code actuel -->
+        <div class="code-display">
+            <h3 id="currentCode">Loading...</h3>
+            <p>Code valide jusqu'à demain</p>
+        </div>
+
+        <!-- Section d'authentification -->
+        <div class="auth-section">
+            <div class="input-group">
+                <label for="codeInput">Entrez le code d'accès :</label>
+                <input type="text" id="codeInput" placeholder="TIS12345" maxlength="8" autocomplete="off">
+            </div>
+            <button class="btn" onclick="verifyCode()">🔓 Vérifier le code</button>
+        </div>
+
+        <!-- Messages de statut -->
+        <div id="statusMessage" class="hidden"></div>
+
+        <!-- Section admin (cachée par défaut) -->
+        <div id="adminPanel" class="admin-panel hidden">
+            <h3>🛠 Panneau d'administration</h3>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="todayCode">TIS????</div>
+                    <div class="stat-label">Code du jour</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="attempts">0</div>
+                    <div class="stat-label">Tentatives</div>
+                </div>
+            </div>
+
+            <button class="btn btn-whatsapp" onclick="sendToWhatsApp()">
+                📱 Envoyer par WhatsApp
+            </button>
+            <button class="btn btn-success" onclick="generateNewCode()">
+                🔄 Nouveau code
+            </button>
+        </div>
+
+        <div class="footer">
+            <p>Projet de test - Version 1.0</p>
+            <p>Destinataire WhatsApp : +212 661-053971</p>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let currentCode = '';
+        let attempts = 0;
+        let isLoggedIn = false;
+
+        // Configuration WhatsApp (vos vraies données)
+        const WHATSAPP_CONFIG = {
+            token: 'EAAPSeW1gAioBPHq0YimjEeaAZBpzeu37JjalPZAODNJbZAy1mO8bpNjQkqNBBbsZBJ72hOFDro1yZCClvuzzUQ7hqZBmycHSCPW80ZCmyw54HNGZBvYMZAwhWylZBJ4ooyD5CIRppL6CtY4Kf9HuhXfVZAcWO2DFvmjZA4kGczdrhm5MZBZCA4dtop76zvPCX7naLcKmOI6gzXP3XZBDZCNvJxs5cgoujebIxLEUtqgLd1KtZA1spToUa9QZDZD',
+            phoneNumberId: '593726023603229',
+            recipientNumber: '212661053971'
+        };
+
+        // Fonction de génération du code (identique à votre code)
+        function generateDailyCode() {
+            const today = new Date();
+            const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
+            const seed = "TIS" + dateStr;
+            
+            let hash = 0;
+            for (let i = 0; i < seed.length; i++) {
+                hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+                hash = hash & hash;
+            }
+            
+            const alphaNum = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let code = 'TIS';
+            const hashAbs = Math.abs(hash);
+            for (let i = 0; i < 5; i++) {
+                code += alphaNum.charAt(hashAbs % alphaNum.length);
+                hash = Math.floor(hash / alphaNum.length);
+            }
+            
+            return code;
+        }
+
+        // Vérification du code
+        function verifyCode() {
+            const inputCode = document.getElementById('codeInput').value.trim().toUpperCase();
+            const todayCode = generateDailyCode();
+            
+            attempts++;
+            document.getElementById('attempts').textContent = attempts;
+
+            if (inputCode === todayCode) {
+                showMessage('✅ Code correct ! Accès autorisé.', 'success');
+                document.getElementById('adminPanel').classList.remove('hidden');
+                document.getElementById('codeInput').disabled = true;
+                isLoggedIn = true;
+                
+                // Animation de succès
+                document.querySelector('.container').classList.add('pulse');
+                setTimeout(() => {
+                    document.querySelector('.container').classList.remove('pulse');
+                }, 500);
+            } else {
+                showMessage('❌ Code incorrect. Veuillez réessayer.', 'error');
+                document.getElementById('codeInput').value = '';
+                document.getElementById('codeInput').focus();
+            }
+        }
+
+        // Afficher un message de statut
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('statusMessage');
+            messageDiv.textContent = text;
+            messageDiv.className = `status-message status-${type}`;
+            messageDiv.classList.remove('hidden');
+            
+            // Masquer le message après 5 secondes
+            setTimeout(() => {
+                messageDiv.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Envoyer le code par WhatsApp
+        async function sendToWhatsApp() {
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            
+            // Animation de chargement
+            btn.innerHTML = '<span class="loading"></span>Envoi en cours...';
+            btn.disabled = true;
+
+            try {
+                const code = generateDailyCode();
+                const message = `🔐 *Code d'accès TIS - Test*
+
+📅 Date : ${new Date().toLocaleDateString('fr-FR')}
+🕐 Heure : ${new Date().toLocaleTimeString('fr-FR')}
+🔑 Code : *${code}*
+
+✅ Test d'envoi automatique réussi !
+🧪 Projet de test déployé sur GitHub
+
+_Message envoyé depuis l'interface de test_`;
+
+                const response = await fetch(`https://graph.facebook.com/v18.0/${WHATSAPP_CONFIG.phoneNumberId}/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${WHATSAPP_CONFIG.token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        messaging_product: 'whatsapp',
+                        to: WHATSAPP_CONFIG.recipientNumber,
+                        type: 'text',
+                        text: {
+                            body: message
+                        }
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    showMessage(`✅ Message envoyé avec succès ! ID: ${data.messages[0].id}`, 'success');
+                    console.log('✅ WhatsApp envoyé:', data);
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(`Erreur ${response.status}: ${errorData.error?.message || 'Erreur inconnue'}`);
+                }
+
+            } catch (error) {
+                console.error('❌ Erreur WhatsApp:', error);
+                showMessage(`❌ Erreur lors de l'envoi: ${error.message}`, 'error');
+            } finally {
+                // Restaurer le bouton
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Générer un nouveau code (simulation)
+        function generateNewCode() {
+            const newCode = generateDailyCode();
+            document.getElementById('todayCode').textContent = newCode;
+            document.getElementById('currentCode').textContent = newCode;
+            showMessage('🔄 Code mis à jour !', 'info');
+        }
+
+        // Gestion de l'appui sur Entrée
+        document.getElementById('codeInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                verifyCode();
+            }
+        });
+
+        // Initialisation au chargement
+        document.addEventListener('DOMContentLoaded', function() {
+            const todayCode = generateDailyCode();
+            document.getElementById('currentCode').textContent = todayCode;
+            document.getElementById('todayCode').textContent = todayCode;
+            document.getElementById('codeInput').focus();
+
+            // Afficher les informations de debug dans la console
+            console.log('🔐 TIS Test Project - Debug Info');
+            console.log('=====================================');
+            console.log('📅 Code du jour:', todayCode);
+            console.log('📱 WhatsApp configuré:', WHATSAPP_CONFIG.recipientNumber);
+            console.log('🔑 Token (premiers chars):', WHATSAPP_CONFIG.token.substring(0, 20) + '...');
+            console.log('📞 Phone ID:', WHATSAPP_CONFIG.phoneNumberId);
+            console.log('=====================================');
+
+            // Test de connectivité (optionnel)
+            showMessage('🚀 Interface de test chargée. Entrez le code pour accéder aux fonctions admin.', 'info');
+        });
+
+        // Protection contre la fermeture accidentelle
+        window.addEventListener('beforeunload', function(e) {
+            if (attempts > 0) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+    </script>
+</body>
+</html>
