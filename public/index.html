@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TIS - Test d'authentification (Server Version)</title>
+    <title>TIS - Test d'authentification (Email Version)</title>
     <style>
         * {
             margin: 0;
@@ -145,12 +145,12 @@
             box-shadow: 0 5px 15px rgba(40,167,69,0.4);
         }
 
-        .btn-whatsapp {
-            background: linear-gradient(45deg, #25D366, #128C7E);
+        .btn-email {
+            background: linear-gradient(45deg, #dc3545, #c82333);
         }
 
-        .btn-whatsapp:hover {
-            box-shadow: 0 5px 15px rgba(37,211,102,0.4);
+        .btn-email:hover {
+            box-shadow: 0 5px 15px rgba(220,53,69,0.4);
         }
 
         .status-message {
@@ -271,19 +271,29 @@
             justify-content: center;
             margin: 15px 0;
         }
+
+        .email-status {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-size: 12px;
+            text-align: left;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="logo">🔐</div>
+        <div class="logo">📧</div>
         <h1>TIS Authentication Test</h1>
-        <div class="version-badge">SERVER VERSION</div>
-        <p class="subtitle">Test avec serveur Node.js (CORS résolu)</p>
+        <div class="version-badge">EMAIL VERSION</div>
+        <p class="subtitle">Test avec serveur Node.js et envoi par email</p>
 
         <!-- Info serveur -->
         <div class="server-info">
-            <strong>📡 Mode serveur actif</strong><br>
-            Les requêtes WhatsApp passent par le serveur Node.js pour éviter les problèmes CORS.
+            <strong>📧 Mode email actif</strong><br>
+            Les codes sont envoyés par email via le serveur Node.js.
         </div>
 
         <!-- Section d'affichage du code actuel -->
@@ -320,25 +330,38 @@
             </div>
 
             <div class="test-buttons">
-                <button class="btn btn-whatsapp" onclick="sendToWhatsAppViaServer()">
-                    📱 Envoyer par WhatsApp
+                <button class="btn btn-email" onclick="sendEmailViaServer()">
+                    📧 Envoyer par Email
                 </button>
                 <button class="btn btn-success" onclick="refreshCode()">
                     🔄 Actualiser
                 </button>
+                <button class="btn" onclick="testEmailConfig()">
+                    🔧 Tester Config Email
+                </button>
+                <button class="btn" onclick="testDailyEmail()" style="background: linear-gradient(45deg, #17a2b8, #138496);">
+                    🌅 Test Envoi 7h00
+                </button>
+            </div>
+
+            <div class="email-status" id="emailStatus">
+                <strong>📧 Configuration email :</strong><br>
+                <span id="emailConfigStatus">🔄 Vérification...</span>
             </div>
 
             <div class="server-info">
                 <strong>🚀 Fonctionnalités de test :</strong><br>
-                • Envoi WhatsApp via serveur (pas de CORS)<br>
+                • Envoi d'email via serveur Node.js<br>
                 • Code généré côté serveur<br>
-                • Logs détaillés dans la console serveur
+                • Email HTML formaté avec style<br>
+                • <strong>🌅 Envoi automatique quotidien à 07h00 (Casablanca)</strong><br>
+                • Test de configuration email
             </div>
         </div>
 
         <div class="footer">
-            <p>Projet de test - Version Server 1.0</p>
-            <p>Destinataire WhatsApp : +212 661-053971</p>
+            <p>Projet de test - Version Email 1.0</p>
+            <p id="recipientEmail">📧 Destinataire : Configuration requise</p>
             <p id="serverStatus">🔄 Vérification du serveur...</p>
         </div>
     </div>
@@ -391,6 +414,26 @@
             return false;
         }
 
+        // Tester la configuration email
+        async function testEmailConfig() {
+            try {
+                const response = await fetch('/test-email-config');
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('emailConfigStatus').innerHTML = 
+                        `✅ Configuration valide<br>Service: ${data.service}<br>Utilisateur: ${data.user}`;
+                    showMessage('✅ Configuration email valide !', 'success');
+                } else {
+                    throw new Error(data.details);
+                }
+            } catch (error) {
+                document.getElementById('emailConfigStatus').innerHTML = 
+                    `❌ Configuration invalide<br>${error.message}`;
+                showMessage(`❌ Erreur de configuration: ${error.message}`, 'error');
+            }
+        }
+
         // Obtenir le code depuis le serveur ou générer côté client
         async function getCurrentCode() {
             if (serverAvailable) {
@@ -422,6 +465,9 @@
                 document.getElementById('codeInput').disabled = true;
                 isLoggedIn = true;
                 
+                // Tester la configuration email une fois connecté
+                testEmailConfig();
+                
                 // Animation de succès
                 document.querySelector('.container').classList.add('pulse');
                 setTimeout(() => {
@@ -441,14 +487,14 @@
             messageDiv.className = `status-message status-${type}`;
             messageDiv.classList.remove('hidden');
             
-            // Masquer le message après 5 secondes
+            // Masquer le message après 7 secondes
             setTimeout(() => {
                 messageDiv.classList.add('hidden');
-            }, 5000);
+            }, 7000);
         }
 
-        // Envoyer le code par WhatsApp via le serveur
-        async function sendToWhatsAppViaServer() {
+        // Envoyer le code par email via le serveur
+        async function sendEmailViaServer() {
             const btn = event.target;
             const originalText = btn.innerHTML;
             
@@ -457,7 +503,7 @@
             btn.disabled = true;
 
             try {
-                const response = await fetch('/send-whatsapp', {
+                const response = await fetch('/send-email', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -471,14 +517,21 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    showMessage(`✅ Message envoyé avec succès ! ID: ${data.messageId}`, 'success');
-                    console.log('✅ WhatsApp envoyé via serveur:', data);
+                    showMessage(`✅ Email envoyé avec succès ! ID: ${data.messageId.substring(0, 8)}...`, 'success');
+                    console.log('✅ Email envoyé via serveur:', data);
+                    
+                    // Afficher les détails dans la console
+                    console.log('📧 Détails de l\'envoi:');
+                    console.log('   - ID du message:', data.messageId);
+                    console.log('   - Code envoyé:', data.code);
+                    console.log('   - Destinataire:', data.recipient);
+                    console.log('   - Timestamp:', data.timestamp);
                 } else {
                     throw new Error(data.error || 'Erreur serveur inconnue');
                 }
 
             } catch (error) {
-                console.error('❌ Erreur envoi WhatsApp:', error);
+                console.error('❌ Erreur envoi email:', error);
                 showMessage(`❌ Erreur lors de l'envoi: ${error.message}`, 'error');
             } finally {
                 // Restaurer le bouton
@@ -493,6 +546,42 @@
             document.getElementById('todayCode').textContent = newCode;
             document.getElementById('currentCode').textContent = newCode;
             showMessage('🔄 Code actualisé !', 'info');
+        }
+
+        // Tester l'envoi automatique quotidien
+        async function testDailyEmail() {
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            
+            // Animation de chargement
+            btn.innerHTML = '<span class="loading"></span>Test en cours...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/send-daily-code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage(`✅ Test envoi quotidien réussi ! Format email 7h00 envoyé.`, 'success');
+                    console.log('✅ Test envoi quotidien via serveur:', data);
+                } else {
+                    throw new Error(data.error || 'Erreur test envoi quotidien');
+                }
+
+            } catch (error) {
+                console.error('❌ Erreur test envoi quotidien:', error);
+                showMessage(`❌ Erreur test: ${error.message}`, 'error');
+            } finally {
+                // Restaurer le bouton
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         }
 
         // Gestion de l'appui sur Entrée
@@ -514,16 +603,31 @@
             document.getElementById('codeInput').focus();
 
             // Afficher les informations de debug dans la console
-            console.log('🔐 TIS Test Project - Server Version');
+            console.log('📧 TIS Test Project - Email Version');
             console.log('=====================================');
             console.log('📅 Code du jour:', todayCode);
             console.log('🌐 Serveur disponible:', serverAvailable);
-            console.log('📱 Destinataire WhatsApp: +212 661-053971');
+            console.log('📧 Version email active');
             console.log('=====================================');
 
             // Message d'accueil
             if (serverAvailable) {
-                showMessage('🚀 Interface serveur chargée. Le serveur Node.js gère les requêtes WhatsApp.', 'info');
+                showMessage('🚀 Interface serveur chargée. Le serveur Node.js gère l\'envoi d\'emails.', 'info');
+                
+                // Tester la config email en arrière-plan
+                setTimeout(async () => {
+                    try {
+                        const response = await fetch('/test-email-config');
+                        const data = await response.json();
+                        if (data.success) {
+                            document.getElementById('recipientEmail').innerHTML = 
+                                `📧 Service: ${data.service} | Utilisateur: ${data.user}`;
+                        }
+                    } catch (error) {
+                        document.getElementById('recipientEmail').innerHTML = 
+                            '📧 Configuration email requise';
+                    }
+                }, 1000);
             } else {
                 showMessage('⚠️ Serveur non disponible. Fonctionnement en mode client uniquement.', 'info');
             }
