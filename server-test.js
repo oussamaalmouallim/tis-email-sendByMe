@@ -8,10 +8,11 @@ const app = express();
 const EMAIL_CONFIG = {
     service: 'gmail',
     auth: {
-        user: 'oussamakanouni39@gmail.com',
-        pass: 'urhu hygf gftt ycjl'
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     }
 };
+
 
 const RECIPIENT_EMAIL = 'oussamaknouni39@gmail.com'; // Email du destinataire
 
