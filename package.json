@@ -1,16 +1,35 @@
 {
-  "name": "tis-email-server",
+  "name": "tis-whatsapp-test",
   "version": "1.0.0",
+  "description": "Projet de test pour l'authentification TIS avec WhatsApp",
+  "main": "server-test.js",
   "scripts": {
     "start": "node server-test.js",
     "dev": "node server-test.js",
-    "build": "echo 'Build completed'"
+    "test": "node -e \"console.log('Code du jour:', require('./server-test.js').generateDailyCode())\""
   },
+  "keywords": [
+    "tis",
+    "whatsapp",
+    "test",
+    "authentication"
+  ],
+  "author": "TIS Team",
+  "license": "MIT",
   "dependencies": {
+    "axios": "^1.6.0",
     "express": "^4.21.2",
     "nodemailer": "^7.0.5"
   },
   "engines": {
-    "node": ">=18.0.0"
-  }
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oussamaalmouallim/tis-whatsapp-test.git"
+  },
+  "bugs": {
+    "url": "https://github.com/oussamaalmouallim/tis-whatsapp-test/issues"
+  },
+  "homepage": "https://github.com/oussamaalmouallim/tis-whatsapp-test#readme"
 }
