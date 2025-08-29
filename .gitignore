@@ -15,6 +15,11 @@ coverage/
 
 # Dependency directories
 node_modules/
+.env
+.env.local
+.env.production
+*.log
+.DS_Store
 jspm_packages/
 
 # Optional npm cache directory
@@ -60,3 +65,4 @@ secrets/
 # Temporary files
 tmp/
 temp/
+
