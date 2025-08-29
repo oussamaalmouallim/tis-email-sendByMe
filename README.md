@@ -43,18 +43,27 @@ Administration : Panneau de contrôle pour tests et monitoring
 ✅ Timezone handling - Support du fuseau horaire Maroc
 
 
-🏗 Architecture
+🛠 Technologies Utilisées
+🔧 Backend
 
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │   Backend       │    │   Email Service │
-│   (HTML/CSS/JS) │◄──►│   (Node.js)     │◄──►│   (Nodemailer)  │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         ▼                       ▼                       ▼
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   User Auth     │    │   Code Engine   │    │   Gmail SMTP    │
-│   Interface     │    │   & Scheduler   │    │   with App Pass │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+Node.js 18+ - Runtime JavaScript
+Express.js 4.21+ - Framework web
+Nodemailer 7.0+ - Service email
+dotenv - Gestion variables d'environnement
+
+🎨 Frontend
+
+HTML5 - Structure sémantique
+CSS3 - Styles modernes, animations
+JavaScript ES6+ - Logique client
+Responsive Design - Mobile-first
+
+🚀 DevOps
+
+Render - Plateforme de déploiement
+GitHub - Contrôle de version
+npm - Gestionnaire de paquets
+Environment Variables - Configuration sécurisée
 
 
 🔧 Composants Principaux
@@ -84,17 +93,17 @@ bash# Clone du repository
 git clone https://github.com/oussamaalmouallim/tis-authentication-system.git
 cd tis-authentication-system
 
-# Installation des dépendances
+Installation des dépendances
 npm install
 
-# Configuration des variables d'environnement
+Configuration des variables d'environnement
 cp .env.example .env
-# Éditer .env avec vos credentials
+Éditer .env avec vos credentials
 
-# Lancement en développement
+ Lancement en développement
 npm run dev
 
-# Lancement en production
+ Lancement en production
 npm start
 
 🔧 Configuration
@@ -117,6 +126,7 @@ RECIPIENT_EMAIL=destinataire@gmail.com
 PORT=3000
 NODE_ENV=production
 TZ=Africa/Casablanca
+
 🎯 Configuration Render
 Dans le dashboard Render, ajouter ces variables :
 VariableValeurDescriptionEMAIL_USERvotre-email@gmail.comAdresse Gmail expéditriceEMAIL_PASSmot-de-passe-appMot de passe d'application GmailRECIPIENT_EMAILdestinataire@gmail.comAdresse de réceptionNODE_ENVproductionEnvironment de déploiement
