@@ -44,6 +44,7 @@ Administration : Panneau de contrôle pour tests et monitoring
 
 
 🏗 Architecture
+
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Frontend      │    │   Backend       │    │   Email Service │
 │   (HTML/CSS/JS) │◄──►│   (Node.js)     │◄──►│   (Nodemailer)  │
@@ -54,6 +55,8 @@ Administration : Panneau de contrôle pour tests et monitoring
 │   User Auth     │    │   Code Engine   │    │   Gmail SMTP    │
 │   Interface     │    │   & Scheduler   │    │   with App Pass │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
+
+
 🔧 Composants Principaux
 Code Generation Engine
 javascript// Algorithme déterministe basé sur la date
