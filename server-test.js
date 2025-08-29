@@ -3,17 +3,18 @@ const express = require('express');
 const nodemailer = require('nodemailer');
 const path = require('path');
 const app = express();
+require('dotenv').config();
 
 // Configuration Email
 const EMAIL_CONFIG = {
     service: 'gmail',
     auth: {
-        user: process.env.EMAIL_USER || 'oussamakanouni39@gmail.com',
-        pass: process.env.EMAIL_PASS || 'urhu hygf gftt ycjl'
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     }
 };
 
-const RECIPIENT_EMAIL = process.env.RECIPIENT_EMAIL || 'oussamaknouni39@gmail.com';
+const RECIPIENT_EMAIL = process.env.RECIPIENT_EMAIL;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
