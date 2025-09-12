@@ -1,4 +1,4 @@
-// server-test.js - Version modifiée pour Render avec système anti-veille
+
 const express = require('express');
 const nodemailer = require('nodemailer');
 const path = require('path');
@@ -150,7 +150,7 @@ async function sendDailyCodeEmail() {
     }
 }
 
-// NOUVEAU SYSTÈME : Vérification automatique à chaque requête
+// Vérification automatique à chaque requête
 function checkAndSendDailyEmail() {
     const now = new Date();
     const casablancaTime = new Date(now.toLocaleString('en-US', {
@@ -184,7 +184,7 @@ function checkAndSendDailyEmail() {
     }
 }
 
-// Remplacez votre route /keepalive par celle-ci :
+// Route de keepalive pour UptimeRobot
 
 app.get('/keepalive', (req, res) => {
     const casablancaTime = new Date().toLocaleString('fr-FR', {
@@ -205,7 +205,7 @@ app.get('/keepalive', (req, res) => {
     
     console.log(`💓 Keepalive ping - ${casablancaTime} - Heure: ${hour}h`);
     
-    // ⭐ IMPORTANT : DÉCLENCHER LA VÉRIFICATION D'EMAIL ICI ⭐
+    // Vérification et envoi de l'email si nécessaire
     checkAndSendDailyEmail();
     
     // Réponse pour UptimeRobot
@@ -222,7 +222,7 @@ app.get('/keepalive', (req, res) => {
     });
 });
 
-// Et aussi, améliorez la fonction checkAndSendDailyEmail avec plus de logs :
+// Fonction de vérification et d'envoi de l'email quotidien
 
 function checkAndSendDailyEmail() {
     const now = new Date();
@@ -309,8 +309,7 @@ app.post('/reset-daily-flag', (req, res) => {
         message: 'Flag d\'envoi quotidien réinitialisé'
     });
 });
-
-// Routes existantes
+// Route de test d'envoi email manuel
 app.post('/send-email', async (req, res) => {
     try {
         const code = generateDailyCode();
