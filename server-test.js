@@ -184,16 +184,18 @@ function checkAndSendDailyEmail() {
     }
 }
 
-// Middleware pour vérifier l'envoi quotidien sur chaque requête
+// SOLUTION : Modifier le middleware et la route keepalive
+
+// Middleware modifié - ENLEVER l'exclusion de /keepalive
 app.use((req, res, next) => {
-    // Ne pas déclencher sur les requêtes internes ou assets
-    if (!req.path.includes('/keepalive') && !req.path.includes('.')) {
+    // Déclencher sur TOUTES les routes sauf les assets statiques
+    if (!req.path.includes('.css') && !req.path.includes('.js') && !req.path.includes('.ico')) {
         checkAndSendDailyEmail();
     }
     next();
 });
 
-// Route spéciale pour maintenir le serveur éveillé
+// OU encore mieux : Route keepalive qui déclenche explicitement la vérification
 app.get('/keepalive', (req, res) => {
     const casablancaTime = new Date().toLocaleString('fr-FR', {
         timeZone: 'Africa/Casablanca',
@@ -205,219 +207,86 @@ app.get('/keepalive', (req, res) => {
         second: '2-digit'
     });
     
-    console.log(`💓 Keepalive ping - ${casablancaTime}`);
+    const hour = new Date().toLocaleString('en-US', {
+        timeZone: 'Africa/Casablanca',
+        hour: 'numeric',
+        hour12: false
+    });
     
-    res.json({ 
+    console.log(`💓 Keepalive ping - ${casablancaTime} - Heure: ${hour}h`);
+    
+    // DÉCLENCHER EXPLICITEMENT LA VÉRIFICATION D'ENVOI EMAIL
+    checkAndSendDailyEmail();
+    
+    // Réponse immédiate pour UptimeRobot
+    res.status(200).json({ 
         status: 'alive',
-        time: new Date().toISOString(),
+        timestamp: new Date().toISOString(),
         casablancaTime: casablancaTime,
+        hour: parseInt(hour),
         emailSentToday: emailSentToday,
-        lastEmailSent: lastEmailSent
+        lastEmailSent: lastEmailSent,
+        server: 'Render',
+        uptime: process.uptime(),
+        message: 'Email check triggered'
     });
 });
 
-// Route de diagnostic améliorée
-app.get('/diagnostic', async (req, res) => {
+// Fonction checkAndSendDailyEmail améliorée avec plus de logs
+function checkAndSendDailyEmail() {
     const now = new Date();
     const casablancaTime = new Date(now.toLocaleString('en-US', {
         timeZone: 'Africa/Casablanca'
     }));
     
-    let emailConfigValid = false;
-    let emailError = null;
+    const today = casablancaTime.toDateString();
+    const hour = casablancaTime.getHours();
+    const minute = casablancaTime.getMinutes();
     
-    try {
-        await transporter.verify();
-        emailConfigValid = true;
-    } catch (error) {
-        emailError = error.message;
+    // Log détaillé pour debugging
+    console.log(`🔍 [VÉRIFICATION EMAIL] ${hour}h${minute.toString().padStart(2, '0')}`);
+    console.log(`   📅 Aujourd'hui: ${today}`);
+    console.log(`   📧 Email envoyé: ${emailSentToday}`);
+    console.log(`   📝 Dernier envoi: ${lastEmailSent}`);
+    
+    // Réinitialiser le flag si on est un nouveau jour
+    if (lastEmailSent && lastEmailSent !== today) {
+        console.log('🗓️ NOUVEAU JOUR DÉTECTÉ - Réinitialisation du flag d\'envoi');
+        emailSentToday = false;
+        lastEmailSent = null;
     }
     
-    res.json({
-        serverStatus: 'Online',
-        serverTime: now.toISOString(),
-        casablancaTime: casablancaTime.toLocaleString('fr-FR'),
-        casablancaHour: casablancaTime.getHours(),
-        emailConfigValid: emailConfigValid,
-        emailError: emailError,
-        emailSentToday: emailSentToday,
-        lastEmailSent: lastEmailSent,
-        environmentVariables: {
-            EMAIL_USER: process.env.EMAIL_USER ? '✅ Défini' : '❌ Manquant',
-            EMAIL_PASS: process.env.EMAIL_PASS ? '✅ Défini' : '❌ Manquant',
-            RECIPIENT_EMAIL: process.env.RECIPIENT_EMAIL ? '✅ Défini' : '❌ Manquant'
-        },
-        dailyCode: generateDailyCode(),
-        nextEmailConditions: {
-            currentHour: casablancaTime.getHours(),
-            isAfter7AM: casablancaTime.getHours() >= 7,
-            isBefore11PM: casablancaTime.getHours() < 23,
-            emailAlreadySent: emailSentToday,
-            willSendOnNextRequest: casablancaTime.getHours() >= 7 && casablancaTime.getHours() < 23 && !emailSentToday
-        }
-    });
-});
-
-// Route pour forcer l'envoi (pour tests)
-app.post('/send-daily-code', async (req, res) => {
-    try {
-        const result = await sendDailyCodeEmail();
-        if (result.success) {
-            emailSentToday = true;
-        }
-        res.json(result);
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
-});
-
-// Route pour réinitialiser le flag (pour tests)
-app.post('/reset-daily-flag', (req, res) => {
-    emailSentToday = false;
-    lastEmailSent = null;
-    res.json({
-        success: true,
-        message: 'Flag d\'envoi quotidien réinitialisé'
-    });
-});
-
-// Routes existantes
-app.post('/send-email', async (req, res) => {
-    try {
-        const code = generateDailyCode();
-        const currentDate = new Date();
+    // Conditions d'envoi
+    const isAfter7AM = hour >= 7;
+    const isBefore11PM = hour < 23;
+    const notSentToday = !emailSentToday;
+    
+    console.log(`   ⏰ Après 7h: ${isAfter7AM}`);
+    console.log(`   ⏰ Avant 23h: ${isBefore11PM}`);
+    console.log(`   ✉️ Pas encore envoyé: ${notSentToday}`);
+    
+    if (isAfter7AM && isBefore11PM && notSentToday) {
+        console.log(`🚀 [ENVOI EN COURS] Conditions remplies à ${hour}h${minute.toString().padStart(2, '0')}`);
         
-        const mailOptions = {
-            from: EMAIL_CONFIG.auth.user,
-            to: RECIPIENT_EMAIL,
-            subject: '🔐 Code d\'accès TIS - Test Server',
-            html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
-                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 15px; text-align: center; color: white; margin-bottom: 20px;">
-                        <h1 style="margin: 0; font-size: 2.5em;">🔐</h1>
-                        <h2 style="margin: 10px 0;">Code d'accès TIS</h2>
-                        <p style="margin: 0; opacity: 0.9;">Test Server - Version Email</p>
-                    </div>
-                    
-                    <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-                        <div style="text-align: center; margin-bottom: 30px;">
-                            <div style="background: #f8f9fa; border: 2px dashed #007bff; border-radius: 15px; padding: 25px; margin: 20px 0;">
-                                <h3 style="color: #007bff; font-size: 2.5em; margin-bottom: 10px; font-family: 'Courier New', monospace; letter-spacing: 2px;">${code}</h3>
-                                <p style="color: #666; font-size: 14px; margin: 0;">Code valide jusqu'à demain</p>
-                            </div>
-                        </div>
-                        
-                        <div style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px; margin: 20px 0; border-radius: 5px;">
-                            <p style="margin: 0; font-size: 14px; color: #1976d2;">
-                                <strong>📧 Test d'envoi par email réussi !</strong><br>
-                                📅 Date : ${currentDate.toLocaleDateString('fr-FR')}<br>
-                                🕐 Heure : ${currentDate.toLocaleTimeString('fr-FR')}<br>
-                                🚀 Serveur Node.js opérationnel sur Render
-                            </p>
-                        </div>
-                        
-                        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
-                            <p style="margin: 0; font-size: 12px; color: #999;">
-                                Message envoyé via le serveur de test TIS<br>
-                                Hébergé sur Render
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            `
-        };
-
-        const info = await transporter.sendMail(mailOptions);
-
-        res.json({
-            success: true,
-            messageId: info.messageId,
-            code: code,
-            timestamp: new Date().toISOString(),
-            recipient: RECIPIENT_EMAIL
-        });
-
-        console.log('✅ Email de test envoyé avec succès:', info.messageId);
-
-    } catch (error) {
-        console.error('❌ Erreur envoi email:', error.message);
-        res.status(500).json({
-            success: false,
-            error: error.message,
-            details: error.toString()
-        });
+        sendDailyCodeEmail()
+            .then(result => {
+                if (result.success) {
+                    emailSentToday = true;
+                    lastEmailSent = today;
+                    console.log('✅ [SUCCÈS] Email quotidien envoyé automatiquement !');
+                } else {
+                    console.error('❌ [ÉCHEC] Erreur envoi:', result.error);
+                }
+            })
+            .catch(error => {
+                console.error('❌ [ERREUR] Exception lors de l\'envoi:', error.message);
+            });
+    } else {
+        const reasons = [];
+        if (!isAfter7AM) reasons.push(`trop tôt (${hour}h < 7h)`);
+        if (!isBefore11PM) reasons.push(`trop tard (${hour}h >= 23h)`);
+        if (!notSentToday) reasons.push('déjà envoyé aujourd\'hui');
+        
+        console.log(`⏭️ [PAS D'ENVOI] Raisons: ${reasons.join(', ')}`);
     }
-});
-
-app.get('/test-email-config', async (req, res) => {
-    try {
-        await transporter.verify();
-        res.json({
-            success: true,
-            message: 'Configuration email valide',
-            service: EMAIL_CONFIG.service,
-            user: EMAIL_CONFIG.auth.user
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: 'Configuration email invalide',
-            details: error.message
-        });
-    }
-});
-
-app.get('/api/code', (req, res) => {
-    res.json({
-        code: generateDailyCode(),
-        date: new Date().toLocaleDateString('fr-FR'),
-        timestamp: new Date().toISOString()
-    });
-});
-
-// Page d'accueil
-app.get('/', (req, res) => {
-    res.send(`
-        <h1>🚀 Serveur TIS - Version Anti-Veille</h1>
-        <p>Serveur opérationnel sur Render</p>
-        <ul>
-            <li><a href="/diagnostic">Diagnostic complet</a></li>
-            <li><a href="/keepalive">Keep Alive (pour UptimeRobot)</a></li>
-            <li><a href="/api/code">Code du jour</a></li>
-        </ul>
-        <p>Code actuel : <strong>${generateDailyCode()}</strong></p>
-    `);
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`🚀 Serveur TIS anti-veille sur http://localhost:${PORT}`);
-    console.log(`🔐 Code du jour : ${generateDailyCode()}`);
-    console.log(`📧 Email destinataire : ${RECIPIENT_EMAIL}`);
-    
-    const casablancaTime = new Date().toLocaleString('fr-FR', {
-        timeZone: 'Africa/Casablanca',
-        weekday: 'long',
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-    });
-    console.log(`🕐 Heure actuelle (Casablanca) : ${casablancaTime}`);
-    
-    // Test de la configuration email au démarrage
-    transporter.verify((error, success) => {
-        if (error) {
-            console.log('❌ Configuration email invalide:', error.message);
-        } else {
-            console.log('✅ Configuration email valide');
-            console.log('📧 Système d\'envoi automatique activé (déclenchement sur requête)');
-            console.log('💡 Configurez UptimeRobot sur /keepalive pour maintenir le serveur éveillé');
-        }
-    });
-});
+}
