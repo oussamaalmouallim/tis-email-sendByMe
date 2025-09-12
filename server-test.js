@@ -184,16 +184,8 @@ function checkAndSendDailyEmail() {
     }
 }
 
-// Middleware pour vérifier l'envoi quotidien sur chaque requête
-app.use((req, res, next) => {
-    // Ne pas déclencher sur les requêtes internes ou assets
-    if (!req.path.includes('/keepalive') && !req.path.includes('.')) {
-        checkAndSendDailyEmail();
-    }
-    next();
-});
+// Remplacez votre route /keepalive par celle-ci :
 
-// Route spéciale pour maintenir le serveur éveillé
 app.get('/keepalive', (req, res) => {
     const casablancaTime = new Date().toLocaleString('fr-FR', {
         timeZone: 'Africa/Casablanca',
@@ -205,58 +197,92 @@ app.get('/keepalive', (req, res) => {
         second: '2-digit'
     });
     
-    console.log(`💓 Keepalive ping - ${casablancaTime}`);
+    const hour = new Date().toLocaleString('en-US', {
+        timeZone: 'Africa/Casablanca',
+        hour: 'numeric',
+        hour12: false
+    });
     
-    res.json({ 
+    console.log(`💓 Keepalive ping - ${casablancaTime} - Heure: ${hour}h`);
+    
+    // ⭐ IMPORTANT : DÉCLENCHER LA VÉRIFICATION D'EMAIL ICI ⭐
+    checkAndSendDailyEmail();
+    
+    // Réponse pour UptimeRobot
+    res.status(200).json({ 
         status: 'alive',
-        time: new Date().toISOString(),
+        timestamp: new Date().toISOString(),
         casablancaTime: casablancaTime,
+        hour: parseInt(hour),
         emailSentToday: emailSentToday,
-        lastEmailSent: lastEmailSent
+        lastEmailSent: lastEmailSent,
+        server: 'Render',
+        uptime: process.uptime(),
+        message: 'Email check triggered' // ← Ce message devrait apparaître
     });
 });
 
-// Route de diagnostic améliorée
-app.get('/diagnostic', async (req, res) => {
+// Et aussi, améliorez la fonction checkAndSendDailyEmail avec plus de logs :
+
+function checkAndSendDailyEmail() {
     const now = new Date();
     const casablancaTime = new Date(now.toLocaleString('en-US', {
         timeZone: 'Africa/Casablanca'
     }));
     
-    let emailConfigValid = false;
-    let emailError = null;
+    const today = casablancaTime.toDateString();
+    const hour = casablancaTime.getHours();
+    const minute = casablancaTime.getMinutes();
     
-    try {
-        await transporter.verify();
-        emailConfigValid = true;
-    } catch (error) {
-        emailError = error.message;
+    // LOGS DÉTAILLÉS pour debugging
+    console.log(`🔍 [EMAIL CHECK] ${hour}h${minute.toString().padStart(2, '0')}`);
+    console.log(`   📅 Today: ${today}`);
+    console.log(`   📧 Email sent today: ${emailSentToday}`);
+    console.log(`   📝 Last email sent: ${lastEmailSent}`);
+    
+    // Réinitialiser si nouveau jour
+    if (lastEmailSent && lastEmailSent !== today) {
+        console.log('🗓️ NEW DAY - Resetting email flag');
+        emailSentToday = false;
+        lastEmailSent = null;
     }
     
-    res.json({
-        serverStatus: 'Online',
-        serverTime: now.toISOString(),
-        casablancaTime: casablancaTime.toLocaleString('fr-FR'),
-        casablancaHour: casablancaTime.getHours(),
-        emailConfigValid: emailConfigValid,
-        emailError: emailError,
-        emailSentToday: emailSentToday,
-        lastEmailSent: lastEmailSent,
-        environmentVariables: {
-            EMAIL_USER: process.env.EMAIL_USER ? '✅ Défini' : '❌ Manquant',
-            EMAIL_PASS: process.env.EMAIL_PASS ? '✅ Défini' : '❌ Manquant',
-            RECIPIENT_EMAIL: process.env.RECIPIENT_EMAIL ? '✅ Défini' : '❌ Manquant'
-        },
-        dailyCode: generateDailyCode(),
-        nextEmailConditions: {
-            currentHour: casablancaTime.getHours(),
-            isAfter7AM: casablancaTime.getHours() >= 7,
-            isBefore11PM: casablancaTime.getHours() < 23,
-            emailAlreadySent: emailSentToday,
-            willSendOnNextRequest: casablancaTime.getHours() >= 7 && casablancaTime.getHours() < 23 && !emailSentToday
-        }
-    });
-});
+    // Conditions
+    const isAfter7AM = hour >= 7;
+    const isBefore11PM = hour < 23;
+    const notSentToday = !emailSentToday;
+    
+    console.log(`   ⏰ After 7AM: ${isAfter7AM} (current: ${hour}h)`);
+    console.log(`   ⏰ Before 11PM: ${isBefore11PM}`);
+    console.log(`   ✉️ Not sent today: ${notSentToday}`);
+    
+    const shouldSend = isAfter7AM && isBefore11PM && notSentToday;
+    
+    if (shouldSend) {
+        console.log(`🚀 [SENDING EMAIL] Conditions met at ${hour}h${minute.toString().padStart(2, '0')}`);
+        
+        sendDailyCodeEmail()
+            .then(result => {
+                if (result.success) {
+                    emailSentToday = true;
+                    lastEmailSent = today;
+                    console.log('✅ [SUCCESS] Daily email sent automatically!');
+                } else {
+                    console.error('❌ [FAILED] Send error:', result.error);
+                }
+            })
+            .catch(error => {
+                console.error('❌ [ERROR] Exception during send:', error.message);
+            });
+    } else {
+        const reasons = [];
+        if (!isAfter7AM) reasons.push(`too early (${hour}h < 7h)`);
+        if (!isBefore11PM) reasons.push(`too late (${hour}h >= 23h)`);
+        if (!notSentToday) reasons.push('already sent today');
+        
+        console.log(`⏭️ [NO SEND] Reasons: ${reasons.join(', ')}`);
+    }
+}
 
 // Route pour forcer l'envoi (pour tests)
 app.post('/send-daily-code', async (req, res) => {
