@@ -19,11 +19,6 @@ const RECIPIENT_EMAIL = process.env.RECIPIENT_EMAIL;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// --- Route racine -> admin.html ---
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
-});
-
 // Variables globales pour le système anti-veille
 let lastEmailSent = null;
 let emailSentToday = false;
