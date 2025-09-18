@@ -309,6 +309,67 @@ app.post('/reset-daily-flag', (req, res) => {
         message: 'Flag d\'envoi quotidien réinitialisé'
     });
 });
+
+
+// Middleware pour servir les fichiers statiques
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Exemple route d'accueil
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// AJOUTEZ CES ROUTES À VOTRE SERVEUR EXISTANT
+
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+// NOUVELLE ROUTE: Authentification sécurisée côté serveur
+app.post('/auth/login', (req, res) => {
+    const { code } = req.body;
+    const MASTER_CODE = process.env.ADMIN_CODE ; // Code depuis .env
+    
+    // Log de tentative de connexion (pour sécurité)
+    const clientIP = req.ip || req.connection.remoteAddress;
+    const timestamp = new Date().toLocaleString('fr-FR', { timeZone: 'Africa/Casablanca' });
+    
+    if (code && code.toUpperCase() === MASTER_CODE.toUpperCase()) {
+        console.log(`✅ [${timestamp}] Connexion admin réussie depuis ${clientIP}`);
+        res.json({ 
+            success: true, 
+            message: 'Authentification réussie' 
+        });
+    } else {
+        console.log(`❌ [${timestamp}] Tentative de connexion échouée depuis ${clientIP} avec le code: "${code}"`);
+        res.status(401).json({ 
+            success: false, 
+            message: 'Code d\'accès incorrect' 
+        });
+    }
+});
+
+// MODIFIEZ VOTRE ROUTE "/" EXISTANTE POUR REDIRIGER VERS LE LOGIN
+app.get('/', (req, res) => {
+    // Redirection automatique vers la page d'admin
+    res.redirect('/admin');
+});
+
+// OPTIONNEL: Route pour accès direct au diagnostic (gardez votre code existant)
+app.get('/public', (req, res) => {
+    res.send(`
+        <h1>🚀 Serveur TIS - Version Anti-Veille</h1>
+        <p>Serveur opérationnel sur Render</p>
+        <ul>
+            <li><a href="/diagnostic">Diagnostic complet</a></li>
+            <li><a href="/keepalive">Keep Alive (pour UptimeRobot)</a></li>
+            <li><a href="/api/code">Code du jour</a></li>
+        </ul>
+        <p>Code actuel : <strong>${generateDailyCode()}</strong></p>
+    `);
+});
+
+
 // Route de test d'envoi email manuel
 app.post('/send-email', async (req, res) => {
     try {
