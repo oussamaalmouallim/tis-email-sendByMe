@@ -325,24 +325,22 @@ app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
-// NOUVELLE ROUTE: Authentification sécurisée côté serveur
-app.post('/auth/login', (req, res) => {
+// Dans ton fichier Node.js, ajoute cette route :
+app.post('/auth/verify', (req, res) => {
     const { code } = req.body;
-    const MASTER_CODE = process.env.ADMIN_CODE ; // Code depuis .env
+    const correctCode = process.env.ADMIN_CODE;
     
-    // Log de tentative de connexion (pour sécurité)
-    const clientIP = req.ip || req.connection.remoteAddress;
-    const timestamp = new Date().toLocaleString('fr-FR', { timeZone: 'Africa/Casablanca' });
+    console.log('Tentative de connexion avec code:', code);
     
-    if (code && code.toUpperCase() === MASTER_CODE.toUpperCase()) {
-        console.log(`✅ [${timestamp}] Connexion admin réussie depuis ${clientIP}`);
+    if (code === correctCode) {
+        console.log('✅ Authentification réussie');
         res.json({ 
             success: true, 
             message: 'Authentification réussie' 
         });
     } else {
-        console.log(`❌ [${timestamp}] Tentative de connexion échouée depuis ${clientIP} avec le code: "${code}"`);
-        res.status(401).json({ 
+        console.log('❌ Code incorrect');
+        res.json({ 
             success: false, 
             message: 'Code d\'accès incorrect' 
         });

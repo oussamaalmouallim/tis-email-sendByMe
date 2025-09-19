@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔐 TIS - Accès Sécurisé</title>
+    <title>TIS - Connexion</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -14,397 +14,250 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f5f5f5;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-        }
-
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .particle {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            animation: float 8s infinite ease-in-out;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0; }
-            50% { transform: translateY(-100px) rotate(180deg); opacity: 1; }
         }
 
         .login-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 25px;
-            padding: 50px 40px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 450px;
+            max-width: 400px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: #0078d4;
+            color: white;
+            padding: 30px;
             text-align: center;
-            position: relative;
-            z-index: 1;
-            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        .logo {
-            font-size: 5rem;
-            margin-bottom: 20px;
-            animation: pulse 2s infinite;
-            text-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin: 0 auto 15px;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 3rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .title {
+            font-size: 1.8rem;
+            font-weight: 400;
+            margin-bottom: 5px;
         }
 
         .subtitle {
-            color: #666;
-            margin-bottom: 40px;
-            font-size: 1.2rem;
-            font-weight: 300;
+            font-size: 0.95rem;
+            opacity: 0.9;
         }
 
-        .input-group {
-            position: relative;
-            margin-bottom: 30px;
+        .form-content {
+            padding: 40px 30px;
         }
 
-        .input-field {
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            color: #323130;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-input {
             width: 100%;
-            padding: 20px 25px;
-            border: 2px solid #e1e8ed;
-            border-radius: 15px;
-            font-size: 1.3rem;
-            font-weight: 600;
-            letter-spacing: 3px;
+            padding: 12px 16px;
+            border: 2px solid #e1dfdd;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-family: 'Consolas', monospace;
+            letter-spacing: 2px;
             text-align: center;
-            transition: all 0.4s ease;
-            background: rgba(255, 255, 255, 0.9);
             text-transform: uppercase;
+            transition: border-color 0.2s ease;
+            background: #fafafa;
         }
 
-        .input-field:focus {
+        .form-input:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 25px rgba(102, 126, 234, 0.4);
-            transform: translateY(-3px);
+            border-color: #0078d4;
             background: white;
         }
 
-        .login-btn {
+        .form-input::placeholder {
+            color: #a19f9d;
+            letter-spacing: normal;
+            text-transform: none;
+        }
+
+        .submit-button {
             width: 100%;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 12px;
+            background: #0078d4;
             border: none;
-            border-radius: 15px;
+            border-radius: 4px;
             color: white;
-            font-size: 1.3rem;
-            font-weight: 700;
+            font-size: 0.95rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.4s ease;
-            margin-bottom: 25px;
-            position: relative;
-            overflow: hidden;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            transition: background-color 0.2s ease;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
-        .login-btn:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.5);
+        .submit-button:hover {
+            background: #106ebe;
         }
 
-        .login-btn:active {
-            transform: translateY(-2px);
-        }
-
-        .login-btn:disabled {
-            opacity: 0.7;
+        .submit-button:disabled {
+            background: #a19f9d;
             cursor: not-allowed;
-            transform: none;
         }
 
-        .error-message {
-            color: #e74c3c;
-            background: rgba(231, 76, 60, 0.1);
-            border: 1px solid rgba(231, 76, 60, 0.3);
-            padding: 18px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            font-weight: 600;
-            display: none;
-            animation: shake 0.6s ease-in-out;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
-            20%, 40%, 60%, 80% { transform: translateX(8px); }
-        }
-
-        .success-message {
-            color: #27ae60;
-            background: rgba(39, 174, 96, 0.1);
-            border: 1px solid rgba(39, 174, 96, 0.3);
-            padding: 18px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            font-weight: 600;
-            display: none;
-        }
-
-        .dashboard {
-            display: none;
-            text-align: left;
-        }
-
-        .dashboard h2 {
-            color: #333;
-            margin-bottom: 30px;
-            text-align: center;
-            font-size: 2rem;
-        }
-
-        .code-display {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border: 3px dashed #667eea;
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-            margin: 25px 0;
-            position: relative;
-        }
-
-        .current-code {
-            font-size: 3rem;
-            font-family: 'Courier New', monospace;
-            color: #667eea;
-            font-weight: bold;
-            letter-spacing: 4px;
-            margin-bottom: 15px;
-            text-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
-        }
-
-        .code-info {
-            color: #666;
-            font-size: 1rem;
-            font-weight: 500;
-        }
-
-        .refresh-btn {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            background: #667eea;
-            color: white;
-            border: none;
+        .loading-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .refresh-btn:hover {
-            background: #5a67d8;
-            transform: rotate(180deg);
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin: 30px 0;
-        }
-
-        .info-card {
-            background: rgba(102, 126, 234, 0.1);
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            transition: transform 0.3s ease;
-        }
-
-        .info-card:hover {
-            transform: translateY(-3px);
-        }
-
-        .info-card h4 {
-            color: #667eea;
-            margin-bottom: 8px;
-            font-size: 1.1rem;
-        }
-
-        .info-card p {
-            color: #666;
-            font-size: 1rem;
-            font-weight: 500;
-        }
-
-        .logout-btn {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            float: right;
-            font-size: 1rem;
-        }
-
-        .logout-btn:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
-        }
-
-        .loading {
-            display: inline-block;
-            width: 25px;
-            height: 25px;
-            border: 3px solid #ffffff;
-            border-radius: 50%;
-            border-top-color: transparent;
             animation: spin 1s linear infinite;
+            display: none;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
-        .footer {
-            margin-top: 35px;
-            text-align: center;
-            color: #999;
+        .alert {
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 20px;
             font-size: 0.9rem;
+            display: none;
+            border-left: 4px solid;
         }
 
-        .security-badge {
+        .alert-error {
+            background: #fde7e9;
+            color: #a80000;
+            border-color: #d13438;
+        }
+
+        .alert-success {
+            background: #dff6dd;
+            color: #107c10;
+            border-color: #107c10;
+        }
+
+        .info-section {
+            background: #f8f8f8;
+            padding: 20px;
+            border-top: 1px solid #e1dfdd;
+            text-align: center;
+        }
+
+        .security-info {
+            color: #605e5c;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .help-link {
+            color: #0078d4;
+            text-decoration: none;
+            font-size: 0.85rem;
+            margin-top: 10px;
             display: inline-block;
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-top: 15px;
+        }
+
+        .help-link:hover {
+            text-decoration: underline;
         }
 
         @media (max-width: 480px) {
             .login-container {
                 margin: 20px;
-                padding: 40px 30px;
+                box-shadow: none;
+                border: 1px solid #e1dfdd;
             }
             
-            h1 {
-                font-size: 2.5rem;
-            }
-            
-            .current-code {
-                font-size: 2.2rem;
-            }
-            
-            .info-grid {
-                grid-template-columns: 1fr;
+            .form-content {
+                padding: 30px 25px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Particules d'animation -->
-    <div class="particles" id="particles"></div>
-
     <div class="login-container">
-        <!-- Formulaire de connexion -->
-        <div id="loginForm">
-            <div class="logo">🔐</div>
-            <h1>TIS</h1>
-            <p class="subtitle">Interface Administrateur</p>
-            
-            <div class="error-message" id="errorMessage">
-                <i class="fas fa-exclamation-triangle"></i> Code d'accès incorrect !
+        <div class="header">
+            <div class="logo-icon">
+                <i class="fas fa-lock"></i>
             </div>
-            
-            <div class="success-message" id="successMessage">
-                <i class="fas fa-check-circle"></i> Authentification réussie ! Redirection...
+            <h1 class="title">TIS</h1>
+            <p class="subtitle">Système de gestion d'accès</p>
+        </div>
+
+        <div class="form-content">
+            <div class="alert alert-error" id="errorMessage">
+                <i class="fas fa-exclamation-triangle"></i> Code d'accès incorrect
             </div>
-            
-            <div class="input-group">
-                <input 
-                    type="password" 
-                    class="input-field" 
-                    id="accessCode" 
-                    placeholder="CODE D'ACCÈS"
-                    maxlength="8"
-                    autocomplete="off"
-                >
+
+            <div class="alert alert-success" id="successMessage">
+                <i class="fas fa-check-circle"></i> Authentification réussie ! Redirection en cours...
             </div>
-            
-            <button class="login-btn" id="loginBtn" onclick="authenticate()">
-                <span id="btnText"><i class="fas fa-lock-open"></i> ACCÉDER</span>
-                <span id="btnLoader" class="loading" style="display: none;"></span>
-            </button>
-            
-            <div class="footer">
-                <div class="security-badge">
-                    <i class="fas fa-shield-alt"></i> Accès Sécurisé
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="accessCode" class="form-label">Code d'accès</label>
+                    <input 
+                        type="password" 
+                        id="accessCode"
+                        class="form-input"
+                        placeholder="Saisissez votre code"
+                        maxlength="8"
+                        autocomplete="off"
+                    >
                 </div>
-                <br><br>
-                🔒 Interface réservée à l'administrateur
+
+                <button type="submit" class="submit-button" id="loginBtn">
+                    <span id="btnText">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Se connecter
+                    </span>
+                    <div class="loading-spinner" id="btnLoader"></div>
+                </button>
+            </form>
+        </div>
+
+        <div class="info-section">
+            <div class="security-info">
+                <i class="fas fa-shield-alt"></i>
+                Connexion sécurisée
             </div>
+            <a href="#" class="help-link">Besoin d'aide ?</a>
         </div>
     </div>
 
     <script>
-        // Le code d'accès est maintenant sécurisé côté serveur dans .env
-        
-        // Variables globales
-        let isAuthenticated = false;
-        let updateInterval;
-
-        // Initialisation des particules
-        function createParticles() {
-            const container = document.getElementById('particles');
-            for (let i = 0; i < 50; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.top = Math.random() * 100 + '%';
-                particle.style.width = Math.random() * 10 + 5 + 'px';
-                particle.style.height = particle.style.width;
-                particle.style.animationDelay = Math.random() * 8 + 's';
-                particle.style.animationDuration = (Math.random() * 10 + 5) + 's';
-                container.appendChild(particle);
-            }
-        }
-
-        // Fonction d'authentification sécurisée
+        // Fonction d'authentification
         async function authenticate() {
             const code = document.getElementById('accessCode').value;
             const loginBtn = document.getElementById('loginBtn');
@@ -425,11 +278,11 @@
             // Animation de chargement
             loginBtn.disabled = true;
             btnText.style.display = 'none';
-            btnLoader.style.display = 'inline-block';
+            btnLoader.style.display = 'block';
 
             try {
-                // Authentification côté serveur
-                const response = await fetch('/auth/login', {
+                // Appel au serveur pour vérifier le code
+                const response = await fetch('/auth/verify', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -440,145 +293,63 @@
                 const result = await response.json();
 
                 if (result.success) {
-    // Succès
-    successMsg.style.display = 'block';
-    
-    setTimeout(() => {
-        window.location.href = "index.html"; // ou /public/code.html si mal configuré
-    }, 1500);
-                  
+                    // SUCCÈS
+                    console.log('Authentification réussie');
+                    successMsg.style.display = 'block';
+                    
+                    // Marquer comme authentifié
+                    sessionStorage.setItem('authenticated', 'true');
+                    
+                    // Redirection après 1.5 secondes
+                    setTimeout(() => {
+                        console.log('Redirection vers index.html...');
+                        window.location.replace('index.html');
+                    }, 1500);
+                    
                 } else {
-                    // Échec
+                    // ÉCHEC
                     showError(result.message || 'Code d\'accès incorrect');
+                    resetButton();
                 }
                 
             } catch (error) {
+                console.error('Erreur de connexion:', error);
                 showError('Erreur de connexion au serveur');
-                console.error('Erreur auth:', error);
-            } finally {
-                // Reset bouton
-                loginBtn.disabled = false;
-                btnText.style.display = 'inline';
-                btnLoader.style.display = 'none';
-                
-                // Vider le champ en cas d'échec
-                if (!isAuthenticated) {
-                    document.getElementById('accessCode').value = '';
-                }
+                resetButton();
             }
         }
 
-        // Fonction pour afficher les erreurs
+        function resetButton() {
+            const loginBtn = document.getElementById('loginBtn');
+            const btnText = document.getElementById('btnText');
+            const btnLoader = document.getElementById('btnLoader');
+            
+            loginBtn.disabled = false;
+            btnText.style.display = 'flex';
+            btnLoader.style.display = 'none';
+            document.getElementById('accessCode').value = '';
+        }
+
         function showError(message) {
             const errorMsg = document.getElementById('errorMessage');
             errorMsg.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
             errorMsg.style.display = 'block';
         }
 
-        // Initialisation du dashboard
-        async function initDashboard() {
-            await updateDashboard();
-            
-            // Mise à jour automatique toutes les 30 secondes
-            updateInterval = setInterval(updateDashboard, 30000);
-        }
+        // Event listeners
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            authenticate();
+        });
 
-        // Mise à jour du dashboard
-        async function updateDashboard() {
-            try {
-                // Récupération du code du jour
-                const response = await fetch('/api/code');
-                const data = await response.json();
-                
-                document.getElementById('currentCode').textContent = data.code;
-                document.getElementById('codeDate').textContent = data.date;
-                document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('fr-FR');
-                
-                // Vérification du statut email
-                await checkEmailStatus();
-                
-            } catch (error) {
-                console.error('Erreur lors de la mise à jour:', error);
-                document.getElementById('serverStatus').innerHTML = '<i class="fas fa-circle" style="color: #e74c3c;"></i> Erreur connexion';
-            }
-        }
-
-        // Actualisation manuelle du code
-        async function refreshCode() {
-            const refreshBtn = document.querySelector('.refresh-btn');
-            refreshBtn.style.transform = 'rotate(360deg)';
-            
-            await updateDashboard();
-            
-            setTimeout(() => {
-                refreshBtn.style.transform = 'rotate(0deg)';
-            }, 500);
-        }
-
-        // Vérification du statut email
-        async function checkEmailStatus() {
-            try {
-                const response = await fetch('/keepalive');
-                const data = await response.json();
-                
-                if (data.emailSentToday) {
-                    document.getElementById('emailStatus').innerHTML = '<i class="fas fa-check-circle" style="color: #27ae60;"></i> Envoyé aujourd\'hui';
-                } else {
-                    document.getElementById('emailStatus').innerHTML = '<i class="fas fa-hourglass-half" style="color: #f39c12;"></i> En attente';
-                }
-                
-            } catch (error) {
-                document.getElementById('emailStatus').innerHTML = '<i class="fas fa-exclamation-triangle" style="color: #e74c3c;"></i> Erreur statut';
-            }
-        }
-
-        // Fonction de déconnexion
-        function logout() {
-            isAuthenticated = false;
-            
-            // Arrêter les mises à jour
-            if (updateInterval) {
-                clearInterval(updateInterval);
-            }
-            
-            // Reset interface
-            document.getElementById('dashboard').style.display = 'none';
-            document.getElementById('loginForm').style.display = 'block';
-            document.getElementById('accessCode').value = '';
-            document.getElementById('errorMessage').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'none';
-            
-            // Reset bouton
-            const loginBtn = document.getElementById('loginBtn');
-            loginBtn.disabled = false;
-            document.getElementById('btnText').style.display = 'inline';
-            document.getElementById('btnLoader').style.display = 'none';
-        }
-
-        // Gestion de la touche Entrée
         document.getElementById('accessCode').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 authenticate();
             }
         });
 
-        // Protection contre l'inspection (basique)
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
-                e.preventDefault();
-                showError('Inspection des éléments désactivée');
-            }
-        });
-
-        // Désactiver le clic droit
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-            showError('Clic droit désactivé pour des raisons de sécurité');
-        });
-
-        // Initialisation au chargement
+        // Focus sur l'input au chargement
         window.addEventListener('load', function() {
-            createParticles();
             document.getElementById('accessCode').focus();
         });
     </script>
