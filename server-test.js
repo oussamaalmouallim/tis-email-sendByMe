@@ -31,10 +31,7 @@ let lastEmailSent = null;
 let emailSentToday = false;
 
 // Configuration du transporteur email
-const transporter = nodemailer.createTransport({
-    service: EMAIL_CONFIG.service,
-    auth: EMAIL_CONFIG.auth
-});
+const transporter = nodemailer.createTransport(EMAIL_CONFIG);
 
 // Fonction de génération du code
 function generateDailyCode() {
