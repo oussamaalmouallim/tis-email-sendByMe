@@ -5,16 +5,22 @@ const path = require('path');
 const app = express();
 require('dotenv').config();
 
-// Configuration Email
+// Configuration Email CORRIGÉE pour Render
 const EMAIL_CONFIG = {
-    service: 'gmail',
+    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.EMAIL_PORT || '587'),
+    secure: false, // true pour port 465, false pour 587
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
+    },
+    tls: {
+        rejectUnauthorized: false // Nécessaire sur certains hébergeurs
     }
 };
 
 const RECIPIENT_EMAIL = process.env.RECIPIENT_EMAIL;
+
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
