@@ -20,8 +20,7 @@ const EMAIL_CONFIG = {
 };
 
 const RECIPIENT_EMAIL = process.env.RECIPIENT_EMAIL;
-// Configuration du transporteur email avec logging détaillé
-const transporter = nodemailer.createTransport(EMAIL_CONFIG);
+
 
 
 app.use(express.json());
@@ -31,6 +30,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 let lastEmailSent = null;
 let emailSentToday = false;
 
+// Configuration du transporteur email
+const transporter = nodemailer.createTransport({
+    service: EMAIL_CONFIG.service,
+    auth: EMAIL_CONFIG.auth
+});
 
 // Fonction de génération du code
 function generateDailyCode() {
