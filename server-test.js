@@ -14,7 +14,7 @@ const EMAIL_CONFIG = {
     secure: false, // true pour port 465, false pour 587
     auth: {
         user: process.env.EMAIL_USER,
-        pass: 'ydjc ukkd tvwm sznz'
+        pass: process.env.EMAIL_PASS
     },
     tls: {
         rejectUnauthorized: false // Nécessaire sur certains hébergeurs
