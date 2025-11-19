@@ -5,41 +5,6 @@ const nodemailer = require('nodemailer');
 const path = require('path');
 const app = express();
 
-// ===== WORKAROUND : Nettoyage automatique des guillemets =====
-function cleanEnvVar(varName) {
-    if (process.env[varName]) {
-        let value = process.env[varName];
-        
-        // Supprimer les guillemets au début et à la fin
-        if (value.startsWith('"') && value.endsWith('"')) {
-            value = value.slice(1, -1);
-            console.log(`🧹 [${varName}] Guillemets supprimés automatiquement`);
-        } else if (value.startsWith("'") && value.endsWith("'")) {
-            value = value.slice(1, -1);
-            console.log(`🧹 [${varName}] Apostrophes supprimées automatiquement`);
-        }
-        
-        process.env[varName] = value;
-        return value;
-    }
-    return null;
-}
-
-// Nettoyer toutes les variables qui pourraient avoir des guillemets
-cleanEnvVar('EMAIL_PASS');
-cleanEnvVar('EMAIL_HOST');
-cleanEnvVar('EMAIL_USER');
-cleanEnvVar('RECIPIENT_EMAIL');
-cleanEnvVar('ADMIN_CODE');
-
-
-console.log('🔍 Variables après nettoyage:');
-console.log('   EMAIL_HOST:', process.env.EMAIL_HOST);
-console.log('   EMAIL_PORT:', process.env.EMAIL_PORT);
-console.log('   EMAIL_USER:', process.env.EMAIL_USER);
-console.log('   EMAIL_PASS longueur:', process.env.EMAIL_PASS ? process.env.EMAIL_PASS.length : 0);
-console.log('   EMAIL_PASS premier char:', process.env.EMAIL_PASS ? `"${process.env.EMAIL_PASS[0]}"` : 'N/A');
-console.log('   RECIPIENT_EMAIL:', process.env.RECIPIENT_EMAIL);
 
 
 // Configuration Email CORRIGÉE pour Render
@@ -49,7 +14,7 @@ const EMAIL_CONFIG = {
     secure: false, // true pour port 465, false pour 587
     auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
+        pass: 'ydjc ukkd tvwm sznz'
     },
     tls: {
         rejectUnauthorized: false // Nécessaire sur certains hébergeurs
