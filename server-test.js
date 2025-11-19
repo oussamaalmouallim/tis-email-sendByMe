@@ -5,6 +5,33 @@ const nodemailer = require('nodemailer');
 const path = require('path');
 const app = express();
 
+// ===== WORKAROUND : Nettoyage automatique des guillemets =====
+function cleanEnvVar(varName) {
+    if (process.env[varName]) {
+        let value = process.env[varName];
+        
+        // Supprimer les guillemets au début et à la fin
+        if (value.startsWith('"') && value.endsWith('"')) {
+            value = value.slice(1, -1);
+            console.log(`🧹 [${varName}] Guillemets supprimés automatiquement`);
+        } else if (value.startsWith("'") && value.endsWith("'")) {
+            value = value.slice(1, -1);
+            console.log(`🧹 [${varName}] Apostrophes supprimées automatiquement`);
+        }
+        
+        process.env[varName] = value;
+        return value;
+    }
+    return null;
+}
+
+// Nettoyer toutes les variables qui pourraient avoir des guillemets
+cleanEnvVar('EMAIL_PASS');
+cleanEnvVar('EMAIL_HOST');
+cleanEnvVar('EMAIL_USER');
+cleanEnvVar('RECIPIENT_EMAIL');
+cleanEnvVar('ADMIN_CODE');
+
 // Configuration Email CORRIGÉE pour Render
 const EMAIL_CONFIG = {
     host: process.env.EMAIL_HOST || 'smtp.gmail.com',
