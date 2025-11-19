@@ -32,6 +32,16 @@ cleanEnvVar('EMAIL_USER');
 cleanEnvVar('RECIPIENT_EMAIL');
 cleanEnvVar('ADMIN_CODE');
 
+
+console.log('🔍 Variables après nettoyage:');
+console.log('   EMAIL_HOST:', process.env.EMAIL_HOST);
+console.log('   EMAIL_PORT:', process.env.EMAIL_PORT);
+console.log('   EMAIL_USER:', process.env.EMAIL_USER);
+console.log('   EMAIL_PASS longueur:', process.env.EMAIL_PASS ? process.env.EMAIL_PASS.length : 0);
+console.log('   EMAIL_PASS premier char:', process.env.EMAIL_PASS ? `"${process.env.EMAIL_PASS[0]}"` : 'N/A');
+console.log('   RECIPIENT_EMAIL:', process.env.RECIPIENT_EMAIL);
+
+
 // Configuration Email CORRIGÉE pour Render
 const EMAIL_CONFIG = {
     host: process.env.EMAIL_HOST || 'smtp.gmail.com',
@@ -45,6 +55,12 @@ const EMAIL_CONFIG = {
         rejectUnauthorized: false // Nécessaire sur certains hébergeurs
     }
 };
+
+console.log('📧 Configuration SMTP:');
+console.log('   Host:', EMAIL_CONFIG.host);
+console.log('   Port:', EMAIL_CONFIG.port);
+console.log('   User:', EMAIL_CONFIG.auth.user);
+console.log('   Pass length:', EMAIL_CONFIG.auth.pass ? EMAIL_CONFIG.auth.pass.length : 0);
 
 const RECIPIENT_EMAIL = process.env.RECIPIENT_EMAIL;
 
