@@ -12,11 +12,14 @@
     "tis",
     "whatsapp",
     "test",
-    "authentication"
+    "authentication",
+    "email",
+    "sendrid"
   ],
   "author": "TIS Team",
   "license": "MIT",
   "dependencies": {
+    "@sendgrid/mail": "^8.1.0",
     "axios": "^1.6.0",
     "dotenv": "^17.2.2",
     "express": "^4.21.2",
@@ -34,3 +37,5 @@
   },
   "homepage": "https://github.com/oussamaalmouallim/tis-whatsapp-test#readme"
 }
+
+
